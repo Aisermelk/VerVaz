@@ -741,7 +741,10 @@
             }
             render();
         });
-        $('[data-action="reload"]') ?.addEventListener('click', loadCatalog);
+        $('[data-action="reload"]') ?.addEventListener('click', async () => {
+            try { if (window.V8?.reload) await window.V8.reload(); } catch {}
+            await loadCatalog();
+        });
         $('#image-file') ?.addEventListener('change', event => upload(event.target.files[0]));
         $('[data-action="remove-image"]') ?.addEventListener('click', () => {
             uploadRevision++;
@@ -974,20 +977,37 @@
         state.loading = true;
         state.error = '';
         render();
-        const headers = {
-            'X-Tenant-Id': tenant
-        };
+        const headers = { 'X-Tenant-Id': tenant };
         await Promise.all([
-            fetch(`${api}/products`, {
-                headers
-            }).then(async response => {
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                if (!Array.isArray(data)) throw new Error();
-                state.products = data.filter(product => product.active);
-            }).catch(() => {
-                state.error = 'Estamos preparando as peças e suas informações. Volte em breve para conhecer o catálogo.';
-            }),
+            // O catálogo público tem uma única fonte: V8 Loader (window.V8.catalog).
+            // Não buscar /products diretamente pela API do Ateliê.
+            (async () => {
+                try {
+                    if (!window.V8 || !window.V8.ready || typeof window.V8.ready.then !== 'function') {
+                        throw new Error('V8 Loader não está disponível.');
+                    }
+                    await window.V8.ready;
+                    const catalog = window.V8.catalog;
+                    if (!catalog || !Array.isArray(catalog.products)) {
+                        throw new Error('O V8 Loader não retornou o catálogo.');
+                    }
+                    const categories = Array.isArray(catalog.categories) ? catalog.categories : [];
+                    const categoryNames = new Map(categories.map(category => [String(category.id), category.name || '']));
+                    state.products = catalog.products.map(product => ({
+                        id: String(product.id),
+                        name: product.name || 'Produto',
+                        description: product.description || product.shortDescription || '',
+                        price: product.price == null || product.price === '' ? null : Number(product.price),
+                        stock: product.soldOut ? 0 : 999999,
+                        categoryName: categoryNames.get(String(product.categoryId || '')) || '',
+                        imageUrl: product.cover || product.image || (Array.isArray(product.images) ? product.images[0] : '') || '',
+                        active: true
+                    }));
+                } catch (error) {
+                    state.products = [];
+                    state.error = 'Não foi possível carregar o catálogo do V8. Confira a configuração do V8 Loader e tente novamente.';
+                }
+            })(),
             fetch(`${api}/atelier/config`, {
                 headers
             }).then(async response => {
