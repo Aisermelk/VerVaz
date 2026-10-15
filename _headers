@@ -1,9 +1,0 @@
-/*
-  X-Content-Type-Options: nosniff
-  Referrer-Policy: strict-origin-when-cross-origin
-/atelier/assets/*
-  Cache-Control: public, max-age=31536000, immutable
-/atelier/*.js
-  Cache-Control: public, max-age=300
-/atelier/*.css
-  Cache-Control: public, max-age=300
