@@ -1399,3 +1399,35 @@ body,
         display: none
     }
 }
+
+/* Botão flutuante de WhatsApp — número obtido do V8 Loader. */
+.v8-whatsapp-float {
+    position: fixed;
+    right: max(22px, env(safe-area-inset-right));
+    bottom: max(22px, env(safe-area-inset-bottom));
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 60px;
+    min-height: 60px;
+    padding: 0 19px;
+    border: 1px solid rgba(255,255,255,.7);
+    border-radius: 999px;
+    background: #25D366;
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(26, 75, 42, .28);
+    font: 600 13px/1 Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+.v8-whatsapp-float svg { width: 31px; height: 31px; flex: 0 0 31px; fill: currentColor; }
+.v8-whatsapp-float:hover { transform: translateY(-2px); box-shadow: 0 11px 28px rgba(26, 75, 42, .34); }
+.v8-whatsapp-float:focus-visible { outline: 3px solid var(--brown-deep); outline-offset: 4px; }
+@media (max-width: 600px) {
+    .v8-whatsapp-float { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); min-width: 58px; min-height: 58px; padding: 0; width: 58px; height: 58px; }
+    .v8-whatsapp-float span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .v8-whatsapp-float svg { width: 30px; height: 30px; }
+}
+@media (prefers-reduced-motion: reduce) { .v8-whatsapp-float { transition: none; } }
