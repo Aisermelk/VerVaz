@@ -131,8 +131,27 @@
         return `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.heart}</svg>`;
     }
 
+    // O WhatsApp é sempre obtido da configuração central do projeto no V8 Loader.
+    // Não usa socialLinks/content.json nem a configuração específica do módulo Ateliê como fallback.
+    function loaderWhatsAppHref() {
+        const raw = String(window.V8?.field?.('contact.whatsapp') ?? window.V8?.config?.contact?.whatsapp ?? '').trim();
+        if (!raw) return '';
+        if (/^https?:\/\/(?:wa\.me|api\.whatsapp\.com)\//i.test(raw)) return raw;
+        let number = raw.replace(/\D/g, '');
+        if (!number) return '';
+        if (number.length <= 11) number = '55' + number;
+        return `https://wa.me/${number}`;
+    }
+
     function socialLink(name) {
+        if (name === 'whatsapp') return loaderWhatsAppHref();
         return safeImage(state.content.socialLinks ?.find(link => link.label ?.toLowerCase() === name) ?.url);
+    }
+
+    function floatingWhatsApp() {
+        const href = loaderWhatsAppHref();
+        if (!href) return '';
+        return `<a class="v8-whatsapp-float" href="${escape(href)}" target="_blank" rel="noopener noreferrer" aria-label="Conversar com a VeroVaz pelo WhatsApp" title="Fale conosco pelo WhatsApp" data-v8-event="Contact" data-v8-event-label="WhatsApp flutuante"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M16.04 3C8.87 3 3.04 8.78 3.04 15.9c0 2.28.61 4.5 1.77 6.46L3 29l6.85-1.78a13.1 13.1 0 0 0 6.19 1.55h.01c7.16 0 13-5.79 13-12.9 0-3.45-1.36-6.69-3.83-9.13A12.9 12.9 0 0 0 16.04 3Zm0 23.57c-1.92 0-3.8-.51-5.44-1.49l-.39-.23-4.07 1.06 1.09-3.95-.26-.41a10.7 10.7 0 0 1-1.65-5.65c0-5.9 4.83-10.7 10.73-10.7 2.86 0 5.55 1.11 7.57 3.13a10.6 10.6 0 0 1 3.14 7.56c0 5.9-4.81 10.68-10.72 10.68Zm5.88-8.01c-.32-.16-1.91-.94-2.21-1.05-.3-.11-.51-.16-.73.16-.21.32-.83 1.05-1.02 1.27-.19.21-.38.24-.7.08-.32-.16-1.35-.5-2.57-1.59-.95-.84-1.59-1.88-1.78-2.2-.19-.32-.02-.49.14-.65.14-.14.32-.38.48-.56.16-.19.21-.32.32-.54.11-.21.05-.4-.03-.56-.08-.16-.73-1.75-1-2.4-.26-.62-.53-.54-.73-.55h-.62c-.21 0-.56.08-.86.4-.3.32-1.13 1.1-1.13 2.67s1.16 3.1 1.32 3.32c.16.21 2.28 3.47 5.52 4.87.77.33 1.37.53 1.84.68.77.24 1.47.21 2.02.13.62-.09 1.91-.78 2.18-1.54.27-.75.27-1.4.19-1.54-.08-.14-.3-.22-.62-.38Z"/></svg><span>Fale conosco</span></a>`;
     }
 
     function safeImage(url) {
@@ -242,7 +261,7 @@
       <header class="site-header shell"><form class="header-search" id="header-search" role="search"><button class="icon-button" aria-label="Buscar produtos">${icon('search')}</button><input name="query" type="search" aria-label="O que você está buscando?" placeholder="O que você está buscando?" value="${escape(state.search)}"></form>${brand()}<nav class="desktop-nav" aria-label="Principal">${navigation(currentRoute)}</nav><div class="header-actions"><button class="icon-button compact-search" data-action="search" aria-label="Buscar produtos">${icon('search')}</button><a class="icon-button" href="#conta" aria-label="Conta e acompanhamento de pedidos">${icon('account')}</a><a class="icon-button cart-icon" href="#carrinho" aria-label="Carrinho, ${state.cart.reduce((sum, item) => sum + item.quantity, 0)} itens">${icon('cart')}<span>${state.cart.reduce((sum, item) => sum + item.quantity, 0)}</span></a><button class="icon-button mobile-toggle" data-action="menu" aria-label="Abrir menu" aria-controls="mobile-nav" aria-expanded="false">${icon('menu')}</button></div><nav class="mobile-nav" id="mobile-nav" aria-label="Navegação móvel" hidden>${navigation(currentRoute)}</nav></header>
       ${state.storageWarning ? `<div class="inline-notice shell" role="status">${escape(state.storageWarning)}</div>` : ''}
       ${state.notice ? `<div class="inline-notice shell" role="status">${escape(state.notice)} <button data-action="dismiss" class="text-button">Fechar</button></div>` : ''}
-      <main id="main-content" tabindex="-1">${page}</main>${footer()}`;
+      <main id="main-content" tabindex="-1">${page}</main>${footer()}${floatingWhatsApp()}`;
         bind();
         if (currentRoute.startsWith('personalize') && (!state.draft.modelProductId || variant() ?.print)) drawPreview();
     }
@@ -986,13 +1005,14 @@
                 }
                 state.content.homeImages = data.homeImages || {};
                 state.content.contact = data.contact || state.content.contact;
-                state.content.socialLinks = data.instagramUrl || data.whatsAppUrl ? [...(data.instagramUrl ? [{
-                    label: 'Instagram',
-                    url: data.instagramUrl
-                }] : []), ...(data.whatsAppUrl ? [{
-                    label: 'WhatsApp',
-                    url: data.whatsAppUrl
-                }] : [])] : state.content.socialLinks;
+                // Instagram pode continuar vindo da configuração editorial do Ateliê.
+                // WhatsApp é exclusivo do V8 Loader (contact.whatsapp), sem fonte duplicada.
+                if (data.instagramUrl) {
+                    state.content.socialLinks = [
+                        ...(state.content.socialLinks || []).filter(link => link.label?.toLowerCase() !== 'instagram'),
+                        { label: 'Instagram', url: data.instagramUrl }
+                    ];
+                }
                 for (const [slug, body] of Object.entries(data.editorialPages || {})) {
                     if (body) state.content.pages[slug] = { ...state.content.pages[slug],
                         body
@@ -1159,6 +1179,11 @@
     }
     await openStorage();
     render();
+    // O Loader pode concluir a leitura do contato depois do primeiro render.
+    // Re-renderiza para exibir o botão assim que contact.whatsapp estiver disponível.
+    if (window.V8?.ready && typeof window.V8.ready.then === 'function') {
+        window.V8.ready.then(() => render()).catch(() => {});
+    }
     loadCatalog();
     if (route().startsWith('pedido/')) refreshOrder();
 })();
