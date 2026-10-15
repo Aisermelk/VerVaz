@@ -1,0 +1,19 @@
+# ADICIONE ao wrangler.toml existente do Worker v8adminuniversal.
+# Não substitua o arquivo completo nem crie um segundo binding V8_D1.
+
+[[r2_buckets]]
+binding = "ATELIER_R2"
+bucket_name = "alquimia-artworks"
+
+# Mescle este cron com os crons existentes, se houver:
+# [triggers]
+# crons = ["0 3 * * *"]
+
+# Configure como secrets no Worker existente:
+# npx wrangler secret put MP_ACCESS_TOKEN
+# npx wrangler secret put MP_WEBHOOK_SECRET
+# npx wrangler secret put MELHOR_ENVIO_TOKEN   # opcional
+#
+# ATELIER_ALLOWED_ORIGINS pode ser definido como variável:
+# https://alquimiaatelie.com.br,https://www.alquimiaatelie.com.br
+# MELHOR_ENVIO_UA = "V8 Digital (contato@seudominio.com)"

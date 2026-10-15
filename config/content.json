@@ -1,0 +1,49 @@
+{
+  "brandName": "VeroVaz Ateliê & Decoração",
+  "logoUrl": "/assets/brand/logo-verovaz.jpeg",
+  "symbolUrl": null,
+  "faviconUrl": null,
+  "collectionLabel": "Decore seu espaço",
+  "collectionProductIds": [],
+  "history": "A VeroVaz Ateliê & Decoração nasceu para transformar imagens, ideias e escolhas pessoais em objetos que decoram, presenteiam e fazem parte do dia a dia.",
+  "contact": "veronica.vmesquita@hotmail.com",
+  "socialLinks": [],
+  "newsletterUrl": null,
+  "pages": {
+    "faq": {
+      "title": "Perguntas frequentes",
+      "body": null
+    },
+    "como-funciona": {
+      "title": "Do seu jeito, do nosso jeito.",
+      "body": "Escolha uma peça personalizada ou decorativa. Para azulejos, experimente enviar sua imagem, ajustar o enquadramento e salvar sua composição no carrinho. Quadros, pratos e canecas terão suas opções apresentadas no catálogo. As composições são salvas com segurança para finalizar o pedido, acompanhar a produção e organizar o envio."
+    },
+    "entrega": {
+      "title": "Entrega e frete",
+      "body": null
+    },
+    "trocas": {
+      "title": "Trocas e devoluções",
+      "body": null
+    },
+    "cuidados": {
+      "title": "Cuidados com o produto",
+      "body": null
+    },
+    "contato": {
+      "title": "Contato",
+      "body": null
+    },
+    "privacidade": {
+      "title": "Política de privacidade",
+      "body": null
+    },
+    "termos": {
+      "title": "Termos de uso",
+      "body": null
+    }
+  },
+  "headerLogoUrl": "/assets/brand/logo-verovaz.jpeg",
+  "slogan": "Onde memórias viram arte",
+  "canonicalOrigin": null
+}
