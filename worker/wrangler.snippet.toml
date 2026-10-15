@@ -1,0 +1,18 @@
+# Acrescente ao wrangler.toml do Worker v8adminuniversal (mantenha o que já existe)
+
+[[r2_buckets]]
+binding = "ATELIER_R2"
+bucket_name = "alquimia-artworks"
+
+[vars]
+ATELIER_ALLOWED_ORIGINS = "https://alquimiaatelie.com.br,https://www.alquimiaatelie.com.br"
+MELHOR_ENVIO_UA = "V8 Digital (seu-email@dominio.com)"
+
+# Cron para limpar rascunhos/artes expiradas (diário, 03:00 UTC)
+[triggers]
+crons = ["0 3 * * *"]
+
+# Secrets (não vão no arquivo):
+#   npx wrangler secret put MP_ACCESS_TOKEN
+#   npx wrangler secret put MP_WEBHOOK_SECRET      (opcional, recomendado)
+#   npx wrangler secret put MELHOR_ENVIO_TOKEN     (opcional)
